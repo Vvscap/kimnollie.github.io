@@ -1,192 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kim & Ollie Secure Channel</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kimnollie.com — LOAD OUT DROP INBOUND</title>
+<style>
+  :root{
+    --pink: #ff5fb0;
+    --pink-soft: #ffb3dd;
+    --white: #ffffff;
+    --black: #050006;
+    --black-2: #0c0210;
+  }
 
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+  *{ box-sizing: border-box; }
 
-        /* Matrix Rain Canvas */
-        #matrix {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
+  html, body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    background: var(--black);
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+  }
 
-        /* Terminal Interface Card */
-        .terminal-card {
-            position: relative;
-            z-index: 2;
-            background: rgba(10, 10, 10, 0.85);
-            border: 2px solid #ff69b4;
-            box-shadow: 0 0 20px rgba(255, 105, 180, 0.4), inset 0 0 10px rgba(255, 105, 180, 0.2);
-            border-radius: 8px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            color: #fff;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
-        }
+  canvas#rain{
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    display:block;
+  }
 
-        /* Header Elements */
-        h1 {
-            color: #ff69b4;
-            font-size: 1.5rem;
-            text-align: center;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 8px rgba(255, 105, 180, 0.8);
-        }
+  .vignette{
+    position: fixed;
+    inset:0;
+    pointer-events:none;
+    background:
+      radial-gradient(ellipse at center, transparent 40%, rgba(5,0,6,0.75) 100%);
+    z-index: 2;
+  }
 
-        .status {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #fff;
-            margin-bottom: 25px;
-            border-bottom: 1px dashed rgba(255, 105, 180, 0.5);
-            padding-bottom: 10px;
-        }
+  .scanlines{
+    position: fixed;
+    inset:0;
+    pointer-events:none;
+    z-index: 3;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.02),
+      rgba(255,255,255,0.02) 1px,
+      transparent 2px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+  }
 
-        .status-blink {
-            color: #ffb6c1;
-            animation: blink 1.5s infinite;
-        }
+  .stage{
+    position: relative;
+    z-index: 4;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 24px;
+  }
 
-        /* Message Body */
-        .message-content {
-            line-height: 1.6;
-            font-size: 1.05rem;
-        }
+  .brand{
+    letter-spacing: 0.5em;
+    font-size: clamp(11px, 1.6vw, 14px);
+    color: var(--pink-soft);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0.85;
+    animation: flicker 4s infinite;
+  }
 
-        .highlight {
-            color: #ff69b4;
-            font-weight: bold;
-            text-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
-        }
+  .brand::before{
+    content: "// ";
+    color: var(--pink);
+  }
 
-        p {
-            margin-bottom: 15px;
-        }
+  h1.title{
+    font-family: 'Courier New', monospace;
+    font-weight: 900;
+    font-size: clamp(28px, 7.5vw, 84px);
+    line-height: 1.02;
+    margin: 0 0 8px 0;
+    color: var(--white);
+    text-shadow:
+      0 0 6px var(--pink),
+      0 0 22px rgba(255, 95, 176, 0.75),
+      0 0 60px rgba(255, 95, 176, 0.4);
+    letter-spacing: 0.04em;
+    animation: flicker 6s infinite;
+  }
 
-        .signature {
-            margin-top: 25px;
-            text-align: right;
-            color: #ffb6c1;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
+  h1.title span{
+    display:block;
+    color: var(--pink);
+    text-shadow:
+      0 0 6px var(--white),
+      0 0 20px rgba(255,255,255,0.7),
+      0 0 50px rgba(255, 95, 176, 0.6);
+  }
 
-        /* Terminal Scanline/Glitch effects */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-    </style>
+  .divider{
+    width: min(70vw, 420px);
+    height: 1px;
+    margin: 22px 0 26px 0;
+    background: linear-gradient(to right, transparent, var(--pink) 20%, var(--white) 50%, var(--pink) 80%, transparent);
+    opacity: 0.8;
+  }
+
+  .eta-label{
+    font-size: clamp(14px, 2.4vw, 20px);
+    letter-spacing: 0.6em;
+    color: var(--white);
+    text-shadow: 0 0 10px var(--pink);
+    margin-bottom: 26px;
+    font-weight: 700;
+  }
+
+  .eta-label .cursor{
+    display:inline-block;
+    width: 0.5em;
+    animation: blink 1s steps(1) infinite;
+    color: var(--pink);
+  }
+
+  .timer{
+    display:flex;
+    gap: clamp(10px, 3vw, 30px);
+    flex-wrap: wrap;
+    justify-content:center;
+  }
+
+  .unit{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width: clamp(64px, 16vw, 130px);
+  }
+
+  .unit .num{
+    font-size: clamp(38px, 10vw, 96px);
+    font-weight: 900;
+    color: var(--white);
+    background: linear-gradient(180deg, #ffffff 0%, var(--pink-soft) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 14px rgba(255,95,176,0.85)) drop-shadow(0 0 34px rgba(255,95,176,0.5));
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .unit .lbl{
+    margin-top: 8px;
+    font-size: clamp(10px, 1.6vw, 13px);
+    letter-spacing: 0.35em;
+    color: var(--pink);
+    text-shadow: 0 0 8px var(--pink);
+  }
+
+  .colon{
+    font-size: clamp(30px, 8vw, 80px);
+    color: var(--pink);
+    align-self:center;
+    text-shadow: 0 0 10px var(--pink);
+    transform: translateY(-6px);
+    opacity: 0.7;
+  }
+
+  .status{
+    margin-top: 34px;
+    font-size: clamp(11px, 1.8vw, 14px);
+    letter-spacing: 0.3em;
+    color: var(--pink-soft);
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+
+  .status strong{
+    color: var(--white);
+    text-shadow: 0 0 8px var(--pink);
+  }
+
+  .arrived{
+    font-size: clamp(24px, 6vw, 56px);
+    color: var(--white);
+    text-shadow: 0 0 10px var(--pink), 0 0 40px var(--pink);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+  }
+
+  @keyframes blink{
+    0%, 49%{ opacity: 1; }
+    50%, 100%{ opacity: 0; }
+  }
+
+  @keyframes flicker{
+    0%, 92%, 100%{ opacity: 1; }
+    93%{ opacity: 0.6; }
+    94%{ opacity: 1; }
+    95%{ opacity: 0.7; }
+    96%{ opacity: 1; }
+  }
+
+  @media (max-width: 480px){
+    .timer{ gap: 8px; }
+    .colon{ display:none; }
+  }
+</style>
 </head>
 <body>
 
-    <canvas id="matrix"></canvas>
+<canvas id="rain"></canvas>
+<div class="vignette"></div>
+<div class="scanlines"></div>
 
-    <div class="terminal-card">
-        <h1>Kim & Ollie Secure Channel</h1>
-        <div class="status">Status: <span class="status-blink">Access granted…</span></div>
-        
-        <div class="message-content">
-            <p>Hey Bear,</p>
-            <p>No ordinary note today.</p>
-            <p><span class="highlight">Mission (if you choose to accept):</span></p>
-            <p>Kim & Ollie’s Cigar Bar (back garden) tonight at <span class="highlight">8:00pm</span>.</p>
-            <p>Hand Made Mojitos + a new Plasencia you haven’t tried yet.</p>
-            <p>Low-key date with me if you’re up for it?</p>
-            <div class="signature">_Ollie</div>
-        </div>
-    </div>
+<div class="stage">
+  <div class="brand">kimnollie.com</div>
 
-    <script>
-        const canvas = document.getElementById('matrix');
-        const ctx = canvas.getContext('2d');
+  <h1 class="title">LOAD OUT<span>DROP INBOUND</span></h1>
 
-        // Set canvas size to full screen
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+  <div class="divider"></div>
 
-        // Matrix characters (Katakana, alphabets, numbers)
-        const chars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890KIMOLLIE";
-        const charArr = chars.split('');
+  <div class="eta-label">ETA TO DROP<span class="cursor">_</span></div>
 
-        const fontSize = 14;
-        let columns = canvas.width / fontSize;
+  <div class="timer" id="timer">
+    <div class="unit"><div class="num" id="dd">00</div><div class="lbl">days</div></div>
+    <div class="colon">:</div>
+    <div class="unit"><div class="num" id="hh">00</div><div class="lbl">hrs</div></div>
+    <div class="colon">:</div>
+    <div class="unit"><div class="num" id="mm">00</div><div class="lbl">min</div></div>
+    <div class="colon">:</div>
+    <div class="unit"><div class="num" id="ss">00</div><div class="lbl">sec</div></div>
+  </div>
 
-        // Tracks the y-coordinate for each column drop
-        const rainDrops = [];
-        for (let x = 0; x < columns; x++) {
-            rainDrops[x] = 1;
-        }
+  <div class="status" id="statusLine">target lock <strong>07.10.2026 · 18:00 ET</strong></div>
+</div>
 
-        function drawMatrix() {
-            // Slight opacity black background to create trailing/fade effect
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+<script>
+  // ---- Matrix rain (pink / white on black) ----
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  let width, height, columns, drops, fontSize;
 
-            for (let i = 0; i < rainDrops.length; i++) {
-                // Randomly select character
-                const text = charArr[Math.floor(Math.random() * charArr.length)];
-                
-                // Mix white and shades of hot/light pink for the hacker girly palette
-                if (Math.random() > 0.85) {
-                    ctx.fillStyle = '#ffffff'; // White highlight highlights
-                } else if (Math.random() > 0.4) {
-                    ctx.fillStyle = '#ff69b4'; // Hot Pink
-                } else {
-                    ctx.fillStyle = '#ffb6c1'; // Light Pink
-                }
+  const chars = "アイウエオカキクケコサシスセソタチツテトナニヌネノ01♥*+♡$₿=<>{}/\\|";
 
-                ctx.font = fontSize + 'px monospace';
-                
-                // Draw character
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+  function setup(){
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    fontSize = window.innerWidth < 600 ? 14 : 18;
+    columns = Math.floor(width / fontSize);
+    drops = new Array(columns).fill(0).map(() => Math.floor(Math.random() * -50));
+  }
+  setup();
+  window.addEventListener('resize', setup);
 
-                // Reset drop to top once it hits bottom or randomly after passing threshold
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
-            }
-        }
+  function draw(){
+    ctx.fillStyle = 'rgba(5, 0, 6, 0.14)';
+    ctx.fillRect(0, 0, width, height);
 
-        // Recalculate column count if window is resized mid-session
-        window.addEventListener('resize', () => {
-            columns = canvas.width / fontSize;
-            for (let x = 0; x < columns; x++) {
-                if(!rainDrops[x]) rainDrops[x] = 1;
-            }
-        });
+    ctx.font = fontSize + 'px monospace';
 
-        setInterval(drawMatrix, 33); // Smooth ~30fps rendering
-    </script>
+    for (let i = 0; i < columns; i++){
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      const x = i * fontSize;
+      const y = drops[i] * fontSize;
+
+      const roll = Math.random();
+      if (roll < 0.06){
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 8;
+      } else if (roll < 0.5){
+        ctx.fillStyle = '#ff5fb0';
+        ctx.shadowColor = '#ff5fb0';
+        ctx.shadowBlur = 6;
+      } else {
+        ctx.fillStyle = '#ffb3dd';
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.fillText(char, x, y);
+      ctx.shadowBlur = 0;
+
+      if (y > height && Math.random() > 0.975){
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+
+  setInterval(draw, 45);
+
+  // ---- Countdown ----
+  // Target: Friday, July 10, 2026, 6:00 PM Eastern Time
+  const target = new Date("2026-07-10T18:00:00-04:00").getTime();
+
+  const ddEl = document.getElementById('dd');
+  const hhEl = document.getElementById('hh');
+  const mmEl = document.getElementById('mm');
+  const ssEl = document.getElementById('ss');
+  const timerEl = document.getElementById('timer');
+  const statusEl = document.getElementById('statusLine');
+
+  function pad(n){ return n.toString().padStart(2, '0'); }
+
+  function tick(){
+    const now = Date.now();
+    const diff = target - now;
+
+    if (diff <= 0){
+      timerEl.innerHTML = '<div class="arrived">DROP HAS LANDED</div>';
+      statusEl.innerHTML = 'status: <strong>INBOUND COMPLETE</strong>';
+      clearInterval(interval);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const mins = Math.floor((diff / (1000 * 60)) % 60);
+    const secs = Math.floor((diff / 1000) % 60);
+
+    ddEl.textContent = pad(days);
+    hhEl.textContent = pad(hours);
+    mmEl.textContent = pad(mins);
+    ssEl.textContent = pad(secs);
+  }
+
+  tick();
+  const interval = setInterval(tick, 1000);
+</script>
+
 </body>
 </html>
