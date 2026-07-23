@@ -1,345 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>kimnollie.com — LOAD OUT DROP INBOUND</title>
-<style>
-  :root{
-    --pink: #ff5fb0;
-    --pink-soft: #ffb3dd;
-    --white: #ffffff;
-    --black: #050006;
-    --black-2: #0c0210;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIMNOLLIE // SEMESTER_SUCCESS.exe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d0211;
+            --term-bg: rgba(26, 10, 36, 0.85);
+            --neon-pink: #ff71ce;
+            --neon-purple: #b967ff;
+            --neon-cyan: #01cdfe;
+            --neon-green: #05ffa1;
+            --soft-white: #fcf6bd;
+            --border-pink: #ff2a8d;
+        }
 
-  *{ box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-  html, body{
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
-    background: var(--black);
-    overflow: hidden;
-    font-family: 'Courier New', monospace;
-  }
+        body {
+            background-color: var(--bg-color);
+            color: var(--soft-white);
+            font-family: 'Fira Code', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-  canvas#rain{
-    position: fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    display:block;
-  }
+        /* Ambient Glow & Scanline Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 10;
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+        }
 
-  .vignette{
-    position: fixed;
-    inset:0;
-    pointer-events:none;
-    background:
-      radial-gradient(ellipse at center, transparent 40%, rgba(5,0,6,0.75) 100%);
-    z-index: 2;
-  }
+        /* Cyber Terminal Window */
+        .terminal-container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--term-bg);
+            border: 2px solid var(--border-pink);
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(255, 113, 206, 0.3), inset 0 0 15px rgba(185, 103, 255, 0.15);
+            backdrop-filter: blur(8px);
+            z-index: 1;
+            overflow: hidden;
+        }
 
-  .scanlines{
-    position: fixed;
-    inset:0;
-    pointer-events:none;
-    z-index: 3;
-    background: repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,0.02),
-      rgba(255,255,255,0.02) 1px,
-      transparent 2px,
-      transparent 3px
-    );
-    mix-blend-mode: overlay;
-  }
+        /* Title Bar */
+        .terminal-header {
+            background: linear-gradient(90deg, #2a083b, #451059);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-pink);
+        }
 
-  .stage{
-    position: relative;
-    z-index: 4;
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding: 24px;
-  }
+        .window-controls {
+            display: flex;
+            gap: 8px;
+        }
 
-  .brand{
-    letter-spacing: 0.5em;
-    font-size: clamp(11px, 1.6vw, 14px);
-    color: var(--pink-soft);
-    text-transform: uppercase;
-    margin-bottom: 18px;
-    opacity: 0.85;
-    animation: flicker 4s infinite;
-  }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-close { background-color: #ff5f56; }
+        .dot-min { background-color: #ffbd2e; }
+        .dot-max { background-color: var(--neon-green); }
 
-  .brand::before{
-    content: "// ";
-    color: var(--pink);
-  }
+        .terminal-title {
+            font-size: 0.8rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+            font-weight: 600;
+        }
 
-  h1.title{
-    font-family: 'Courier New', monospace;
-    font-weight: 900;
-    font-size: clamp(28px, 7.5vw, 84px);
-    line-height: 1.02;
-    margin: 0 0 8px 0;
-    color: var(--white);
-    text-shadow:
-      0 0 6px var(--pink),
-      0 0 22px rgba(255, 95, 176, 0.75),
-      0 0 60px rgba(255, 95, 176, 0.4);
-    letter-spacing: 0.04em;
-    animation: flicker 6s infinite;
-  }
+        /* Terminal Body */
+        .terminal-body {
+            padding: 30px;
+        }
 
-  h1.title span{
-    display:block;
-    color: var(--pink);
-    text-shadow:
-      0 0 6px var(--white),
-      0 0 20px rgba(255,255,255,0.7),
-      0 0 50px rgba(255, 95, 176, 0.6);
-  }
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--neon-pink);
+            font-size: 1.2rem;
+            text-shadow: 0 0 8px var(--neon-pink), 0 0 15px var(--neon-purple);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
 
-  .divider{
-    width: min(70vw, 420px);
-    height: 1px;
-    margin: 22px 0 26px 0;
-    background: linear-gradient(to right, transparent, var(--pink) 20%, var(--white) 50%, var(--pink) 80%, transparent);
-    opacity: 0.8;
-  }
+        .sys-log {
+            color: var(--neon-cyan);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
 
-  .eta-label{
-    font-size: clamp(14px, 2.4vw, 20px);
-    letter-spacing: 0.6em;
-    color: var(--white);
-    text-shadow: 0 0 10px var(--pink);
-    margin-bottom: 26px;
-    font-weight: 700;
-  }
+        p {
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #e0d6f6;
+        }
 
-  .eta-label .cursor{
-    display:inline-block;
-    width: 0.5em;
-    animation: blink 1s steps(1) infinite;
-    color: var(--pink);
-  }
+        /* Stats Grid / Status Module */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
 
-  .timer{
-    display:flex;
-    gap: clamp(10px, 3vw, 30px);
-    flex-wrap: wrap;
-    justify-content:center;
-  }
+        .status-card {
+            background: rgba(255, 113, 206, 0.05);
+            border: 1px dashed var(--neon-purple);
+            padding: 12px 15px;
+            border-radius: 6px;
+        }
 
-  .unit{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    min-width: clamp(64px, 16vw, 130px);
-  }
+        .status-card .label {
+            font-size: 0.75rem;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 5px;
+        }
 
-  .unit .num{
-    font-size: clamp(38px, 10vw, 96px);
-    font-weight: 900;
-    color: var(--white);
-    background: linear-gradient(180deg, #ffffff 0%, var(--pink-soft) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: none;
-    filter: drop-shadow(0 0 14px rgba(255,95,176,0.85)) drop-shadow(0 0 34px rgba(255,95,176,0.5));
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
+        .status-card .value {
+            font-weight: 700;
+            color: var(--neon-green);
+            text-shadow: 0 0 5px rgba(5, 255, 161, 0.4);
+        }
 
-  .unit .lbl{
-    margin-top: 8px;
-    font-size: clamp(10px, 1.6vw, 13px);
-    letter-spacing: 0.35em;
-    color: var(--pink);
-    text-shadow: 0 0 8px var(--pink);
-  }
+        /* Quote Box */
+        blockquote {
+            border-left: 3px solid var(--neon-pink);
+            background: rgba(255, 113, 206, 0.08);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            color: var(--soft-white);
+        }
 
-  .colon{
-    font-size: clamp(30px, 8vw, 80px);
-    color: var(--pink);
-    align-self:center;
-    text-shadow: 0 0 10px var(--pink);
-    transform: translateY(-6px);
-    opacity: 0.7;
-  }
+        /* Neon Action Button */
+        .cta-btn {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            padding: 14px 20px;
+            margin-top: 15px;
+            background: transparent;
+            color: var(--neon-pink);
+            border: 2px solid var(--neon-pink);
+            font-family: 'Fira Code', monospace;
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(255, 113, 206, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
 
-  .status{
-    margin-top: 34px;
-    font-size: clamp(11px, 1.8vw, 14px);
-    letter-spacing: 0.3em;
-    color: var(--pink-soft);
-    text-transform: uppercase;
-    opacity: 0.75;
-  }
+        .cta-btn:hover {
+            background: var(--neon-pink);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--neon-pink);
+            transform: translateY(-2px);
+        }
 
-  .status strong{
-    color: var(--white);
-    text-shadow: 0 0 8px var(--pink);
-  }
+        /* Blink Cursor */
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: var(--neon-pink);
+            vertical-align: middle;
+            animation: blink 0.8s infinite;
+        }
 
-  .arrived{
-    font-size: clamp(24px, 6vw, 56px);
-    color: var(--white);
-    text-shadow: 0 0 10px var(--pink), 0 0 40px var(--pink);
-    font-weight: 900;
-    letter-spacing: 0.1em;
-  }
-
-  @keyframes blink{
-    0%, 49%{ opacity: 1; }
-    50%, 100%{ opacity: 0; }
-  }
-
-  @keyframes flicker{
-    0%, 92%, 100%{ opacity: 1; }
-    93%{ opacity: 0.6; }
-    94%{ opacity: 1; }
-    95%{ opacity: 0.7; }
-    96%{ opacity: 1; }
-  }
-
-  @media (max-width: 480px){
-    .timer{ gap: 8px; }
-    .colon{ display:none; }
-  }
-</style>
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
 </head>
 <body>
 
-<canvas id="rain"></canvas>
-<div class="vignette"></div>
-<div class="scanlines"></div>
+    <div class="terminal-container">
+        <!-- Window Bar -->
+        <div class="terminal-header">
+            <div class="window-controls">
+                <span class="dot dot-close"></span>
+                <span class="dot dot-min"></span>
+                <span class="dot dot-max"></span>
+            </div>
+            <div class="terminal-title">bash - kimnollie.com - 80x24</div>
+            <div></div>
+        </div>
 
-<div class="stage">
-  <div class="brand">kimnollie.com</div>
+        <!-- Terminal Content -->
+        <div class="terminal-body">
+            <div class="sys-log">
+                [SYSTEM]: Loading semester_results.dll...<br>
+                [STATUS]: 200 OK — Execution Finished Successfully.
+            </div>
 
-  <h1 class="title">LOAD OUT<span>DROP INBOUND</span></h1>
+            <h1>> SEMESTER CLEARED!<span class="cursor"></span></h1>
 
-  <div class="divider"></div>
+            <p>
+                A massive <span style="color: var(--neon-pink); font-weight: bold;">Congratulations to Kimberly</span> on officially wrapping up another semester! 🌸⚡
+            </p>
+            <p>
+                From crushing heavy course loads to debugging endless assignments, she tackled every challenge with serious focus, intelligence, and grace.
+            </p>
 
-  <div class="eta-label">ETA TO DROP<span class="cursor">_</span></div>
+            <!-- Status Grid -->
+            <div class="status-grid">
+                <div class="status-card">
+                    <span class="label">// Finals Status</span>
+                    <span class="value">COMPLETED [100%]</span>
+                </div>
+                <div class="status-card">
+                    <span class="label">// Assignments</span>
+                    <span class="value">TERMINATED</span>
+                </div>
+                <div class="status-card">
+                    <span class="label">// Caffeine Intake</span>
+                    <span class="value">OVERFLOW ERROR</span>
+                </div>
+                <div class="status-card">
+                    <span class="label">// Break Status</span>
+                    <span class="value">ACTIVE (RECHARGING)</span>
+                </div>
+            </div>
 
-  <div class="timer" id="timer">
-    <div class="unit"><div class="num" id="dd">00</div><div class="lbl">days</div></div>
-    <div class="colon">:</div>
-    <div class="unit"><div class="num" id="hh">00</div><div class="lbl">hrs</div></div>
-    <div class="colon">:</div>
-    <div class="unit"><div class="num" id="mm">00</div><div class="lbl">min</div></div>
-    <div class="colon">:</div>
-    <div class="unit"><div class="num" id="ss">00</div><div class="lbl">sec</div></div>
-  </div>
+            <blockquote>
+                "Success isn't just about what you accomplish, it's about what you inspire others to do." 
+            </blockquote>
 
-  <div class="status" id="statusLine">target lock <strong>07.10.2026 · 18:00 ET</strong></div>
-</div>
+            <p>
+                Now that the code is compiled, final grades are locked, and the books are closed—it’s time to celebrate! ✨
+            </p>
 
-<script>
-  // ---- Matrix rain (pink / white on black) ----
-  const canvas = document.getElementById('rain');
-  const ctx = canvas.getContext('2d');
-  let width, height, columns, drops, fontSize;
-
-  const chars = "アイウエオカキクケコサシスセソタチツテトナニヌネノ01♥*+♡$₿=<>{}/\\|";
-
-  function setup(){
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    fontSize = window.innerWidth < 600 ? 14 : 18;
-    columns = Math.floor(width / fontSize);
-    drops = new Array(columns).fill(0).map(() => Math.floor(Math.random() * -50));
-  }
-  setup();
-  window.addEventListener('resize', setup);
-
-  function draw(){
-    ctx.fillStyle = 'rgba(5, 0, 6, 0.14)';
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.font = fontSize + 'px monospace';
-
-    for (let i = 0; i < columns; i++){
-      const char = chars[Math.floor(Math.random() * chars.length)];
-      const x = i * fontSize;
-      const y = drops[i] * fontSize;
-
-      const roll = Math.random();
-      if (roll < 0.06){
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 8;
-      } else if (roll < 0.5){
-        ctx.fillStyle = '#ff5fb0';
-        ctx.shadowColor = '#ff5fb0';
-        ctx.shadowBlur = 6;
-      } else {
-        ctx.fillStyle = '#ffb3dd';
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
-      }
-
-      ctx.fillText(char, x, y);
-      ctx.shadowBlur = 0;
-
-      if (y > height && Math.random() > 0.975){
-        drops[i] = 0;
-      }
-      drops[i]++;
-    }
-  }
-
-  setInterval(draw, 45);
-
-  // ---- Countdown ----
-  // Target: Friday, July 10, 2026, 6:00 PM Eastern Time
-  const target = new Date("2026-07-10T18:00:00-04:00").getTime();
-
-  const ddEl = document.getElementById('dd');
-  const hhEl = document.getElementById('hh');
-  const mmEl = document.getElementById('mm');
-  const ssEl = document.getElementById('ss');
-  const timerEl = document.getElementById('timer');
-  const statusEl = document.getElementById('statusLine');
-
-  function pad(n){ return n.toString().padStart(2, '0'); }
-
-  function tick(){
-    const now = Date.now();
-    const diff = target - now;
-
-    if (diff <= 0){
-      timerEl.innerHTML = '<div class="arrived">DROP HAS LANDED</div>';
-      statusEl.innerHTML = 'status: <strong>INBOUND COMPLETE</strong>';
-      clearInterval(interval);
-      return;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const mins = Math.floor((diff / (1000 * 60)) % 60);
-    const secs = Math.floor((diff / 1000) % 60);
-
-    ddEl.textContent = pad(days);
-    hhEl.textContent = pad(hours);
-    mmEl.textContent = pad(mins);
-    ssEl.textContent = pad(secs);
-  }
-
-  tick();
-  const interval = setInterval(tick, 1000);
-</script>
+            <a href="sms:?body=Congrats%20on%20finishing%20the%20semester!%20%F0%9F%8E%89" class="cta-btn">
+                [ Send Congrats Text ]
+            </a>
+        </div>
+    </div>
 
 </body>
 </html>
