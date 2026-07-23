@@ -8,7 +8,7 @@
     <style>
         :root {
             --bg-color: #0d0211;
-            --term-bg: rgba(26, 10, 36, 0.85);
+            --term-bg: rgba(20, 8, 28, 0.88);
             --neon-pink: #ff71ce;
             --neon-purple: #b967ff;
             --neon-cyan: #01cdfe;
@@ -36,13 +36,24 @@
             position: relative;
         }
 
-        /* Ambient Glow & Scanline Effect */
+        /* Matrix Rain Canvas */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* CRT Scanline Effect */
         body::before {
             content: " ";
             display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             z-index: 10;
             background-size: 100% 3px, 6px 100%;
@@ -56,10 +67,12 @@
             background: var(--term-bg);
             border: 2px solid var(--border-pink);
             border-radius: 12px;
-            box-shadow: 0 0 25px rgba(255, 113, 206, 0.3), inset 0 0 15px rgba(185, 103, 255, 0.15);
-            backdrop-filter: blur(8px);
+            box-shadow: 0 0 35px rgba(255, 113, 206, 0.35), inset 0 0 15px rgba(185, 103, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 1;
             overflow: hidden;
+            position: relative;
         }
 
         /* Title Bar */
@@ -120,7 +133,7 @@
             color: #e0d6f6;
         }
 
-        /* Stats Grid / Status Module */
+        /* Stats Grid */
         .status-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -205,6 +218,9 @@
 </head>
 <body>
 
+    <!-- Matrix Rain Canvas -->
+    <canvas id="matrix-canvas"></canvas>
+
     <div class="terminal-container">
         <!-- Window Bar -->
         <div class="terminal-header">
@@ -267,5 +283,71 @@
         </div>
     </div>
 
+    <script>
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas to full window size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Mix of Katakana, Tech, and Cute Cyber symbols
+        const chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ01210101♡✨🌸⚡<>/{}[]';
+        const fontSize = 16;
+        let columns = Math.floor(canvas.width / fontSize);
+        
+        let drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * -100; // Randomize start offset
+        }
+
+        // Color palette for the rain
+        const colors = ['#ff71ce', '#b967ff', '#01cdfe', '#05ffa1', '#ff2a8d'];
+
+        function drawMatrix() {
+            // Semi-transparent black background creates trailing fade effect
+            ctx.fillStyle = 'rgba(13, 2, 17, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.font = fontSize + 'px "Fira Code", monospace';
+
+            // Recalculate columns on resize
+            const currentColumns = Math.floor(canvas.width / fontSize);
+            if (currentColumns !== drops.length) {
+                columns = currentColumns;
+                drops = Array(columns).fill(0).map(() => Math.random() * -100);
+            }
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                
+                // Leading character gets bright cyan/white highlight
+                if (Math.random() > 0.85) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = '#01cdfe';
+                    ctx.shadowBlur = 8;
+                } else {
+                    // Pick random pastel/neon hue
+                    ctx.fillStyle = colors[i % colors.length];
+                    ctx.shadowBlur = 0;
+                }
+
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                // Reset drop to top after leaving screen with pseudo-random timing
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 33); // ~30fps
+    </script>
 </body>
 </html>
