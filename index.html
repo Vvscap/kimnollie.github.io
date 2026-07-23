@@ -3,283 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIMNOLLIE // SEMESTER_SUCCESS.exe</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>KIM_GRADUATION_PROTOCOL</title>
     <style>
         :root {
-            --bg-color: #0d0211;
-            --term-bg: rgba(20, 8, 28, 0.88);
-            --neon-pink: #ff71ce;
-            --neon-purple: #b967ff;
-            --neon-cyan: #01cdfe;
-            --neon-green: #05ffa1;
-            --soft-white: #fcf6bd;
-            --border-pink: #ff2a8d;
+            --pink-neon: #ff2d95;
+            --pink-glow: #ff71ce;
+            --white-glow: #ffffff;
+            --bg-dark: #050505;
         }
 
-        * {
-            box-sizing: border-box;
+        body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-dark);
+            overflow: hidden;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
         }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--soft-white);
-            font-family: 'Fira Code', monospace;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Matrix Rain Canvas */
         #matrix-canvas {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* CRT Scanline Effect */
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 10;
-            background-size: 100% 3px, 6px 100%;
-            pointer-events: none;
-        }
-
-        /* Cyber Terminal Window */
-        .terminal-container {
-            width: 100%;
-            max-width: 750px;
-            background: var(--term-bg);
-            border: 2px solid var(--border-pink);
-            border-radius: 12px;
-            box-shadow: 0 0 35px rgba(255, 113, 206, 0.35), inset 0 0 15px rgba(185, 103, 255, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             z-index: 1;
-            overflow: hidden;
-            position: relative;
         }
 
-        /* Title Bar */
-        .terminal-header {
-            background: linear-gradient(90deg, #2a083b, #451059);
-            padding: 10px 15px;
+        /* Overlay to darken the rain slightly for readability */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Centered Modal Container */
+        .modal-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border-pink);
+            justify-content: center;
+            z-index: 100;
         }
 
-        .window-controls {
+        .modal {
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid var(--pink-neon);
+            box-shadow: 0 0 30px var(--pink-neon), inset 0 0 15px rgba(255, 45, 149, 0.3);
+            width: 90%;
+            max-width: 650px;
+            padding: 40px;
+            position: relative;
+            transform: scale(0.9);
+            animation: modalPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes modalPop {
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            border-bottom: 2px solid var(--pink-neon);
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .terminal-dots {
             display: flex;
             gap: 8px;
+            margin-bottom: 10px;
         }
 
         .dot {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            display: inline-block;
-        }
-        .dot-close { background-color: #ff5f56; }
-        .dot-min { background-color: #ffbd2e; }
-        .dot-max { background-color: var(--neon-green); }
-
-        .terminal-title {
-            font-size: 0.8rem;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 5px var(--neon-cyan);
-            font-weight: 600;
-        }
-
-        /* Terminal Body */
-        .terminal-body {
-            padding: 30px;
+            background: var(--pink-neon);
+            box-shadow: 0 0 5px var(--pink-neon);
         }
 
         h1 {
-            font-family: 'Press Start 2P', cursive;
-            color: var(--neon-pink);
-            font-size: 1.2rem;
-            text-shadow: 0 0 8px var(--neon-pink), 0 0 15px var(--neon-purple);
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .sys-log {
-            color: var(--neon-cyan);
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-        }
-
-        p {
-            line-height: 1.6;
-            margin-bottom: 20px;
-            color: #e0d6f6;
-        }
-
-        /* Stats Grid */
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 25px 0;
-        }
-
-        .status-card {
-            background: rgba(255, 113, 206, 0.05);
-            border: 1px dashed var(--neon-purple);
-            padding: 12px 15px;
-            border-radius: 6px;
-        }
-
-        .status-card .label {
-            font-size: 0.75rem;
-            color: var(--neon-cyan);
+            color: var(--white-glow);
             text-transform: uppercase;
-            display: block;
-            margin-bottom: 5px;
+            letter-spacing: 4px;
+            margin: 0;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px var(--pink-neon);
         }
 
-        .status-card .value {
-            font-weight: 700;
-            color: var(--neon-green);
-            text-shadow: 0 0 5px rgba(5, 255, 161, 0.4);
+        .content {
+            color: var(--pink-glow);
+            line-height: 1.6;
+            font-size: 1.1rem;
         }
 
-        /* Quote Box */
-        blockquote {
-            border-left: 3px solid var(--neon-pink);
-            background: rgba(255, 113, 206, 0.08);
-            padding: 15px;
-            margin: 20px 0;
-            font-style: italic;
-            color: var(--soft-white);
+        .line {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
         }
 
-        /* Neon Action Button */
-        .cta-btn {
-            display: inline-block;
-            width: 100%;
-            text-align: center;
-            padding: 14px 20px;
-            margin-top: 15px;
-            background: transparent;
-            color: var(--neon-pink);
-            border: 2px solid var(--neon-pink);
-            font-family: 'Fira Code', monospace;
-            font-weight: 700;
+        .prompt {
+            color: var(--white-glow);
+            margin-right: 10px;
+            user-select: none;
+        }
+
+        .highlight {
+            color: var(--white-glow);
+            font-weight: bold;
+            background: rgba(255, 45, 149, 0.2);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .location-link {
+            color: var(--white-glow);
             text-decoration: none;
+            border-bottom: 1px solid var(--white-glow);
+            transition: all 0.3s;
+        }
+
+        .location-link:hover {
+            color: var(--pink-neon);
+            border-color: var(--pink-neon);
+            text-shadow: 0 0 8px var(--pink-neon);
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--pink-neon);
+            color: var(--pink-neon);
+            padding: 15px 40px;
+            font-size: 1.2rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 6px;
-            box-shadow: 0 0 10px rgba(255, 113, 206, 0.2);
-            transition: all 0.3s ease;
+            font-weight: bold;
             cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(255, 45, 149, 0.4);
         }
 
-        .cta-btn:hover {
-            background: var(--neon-pink);
-            color: var(--bg-color);
-            box-shadow: 0 0 20px var(--neon-pink);
-            transform: translateY(-2px);
+        .btn:hover {
+            background: var(--pink-neon);
+            color: white;
+            box-shadow: 0 0 30px var(--pink-neon);
         }
 
-        /* Blink Cursor */
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 15px;
-            background-color: var(--neon-pink);
-            vertical-align: middle;
-            animation: blink 0.8s infinite;
+        .blink {
+            animation: blinker 1s step-start infinite;
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
+        @keyframes blinker {
             50% { opacity: 0; }
+        }
+
+        /* Scanline effect */
+        .modal::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-
-    <!-- Matrix Rain Canvas -->
     <canvas id="matrix-canvas"></canvas>
+    <div class="overlay"></div>
 
-    <div class="terminal-container">
-        <!-- Window Bar -->
-        <div class="terminal-header">
-            <div class="window-controls">
-                <span class="dot dot-close"></span>
-                <span class="dot dot-min"></span>
-                <span class="dot dot-max"></span>
-            </div>
-            <div class="terminal-title">bash - kimnollie.com - 80x24</div>
-            <div></div>
-        </div>
-
-        <!-- Terminal Content -->
-        <div class="terminal-body">
-            <div class="sys-log">
-                [SYSTEM]: Loading semester_results.dll...<br>
-                [STATUS]: 200 OK — Execution Finished Successfully.
-            </div>
-
-            <h1>> SEMESTER CLEARED!<span class="cursor"></span></h1>
-
-            <p>
-                A massive <span style="color: var(--neon-pink); font-weight: bold;">Congratulations to Kimberly</span> on officially wrapping up another semester! 🌸⚡
-            </p>
-            <p>
-                From crushing heavy course loads to debugging endless assignments, she tackled every challenge with serious focus, intelligence, and grace.
-            </p>
-
-            <!-- Status Grid -->
-            <div class="status-grid">
-                <div class="status-card">
-                    <span class="label">// Finals Status</span>
-                    <span class="value">COMPLETED [100%]</span>
+    <div class="modal-wrapper">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <div class="terminal-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <h1>Mission: Celebration</h1>
                 </div>
-                <div class="status-card">
-                    <span class="label">// Assignments</span>
-                    <span class="value">TERMINATED</span>
-                </div>
-                <div class="status-card">
-                    <span class="label">// Caffeine Intake</span>
-                    <span class="value">OVERFLOW ERROR</span>
-                </div>
-                <div class="status-card">
-                    <span class="label">// Break Status</span>
-                    <span class="value">ACTIVE (RECHARGING)</span>
+                <div style="color: var(--white-glow); font-size: 0.8rem; opacity: 0.7;">
+                    ID: GRAD_2026_KIM
                 </div>
             </div>
 
-            <blockquote>
-                "Success isn't just about what you accomplish, it's about what you inspire others to do." 
-            </blockquote>
+            <div class="content">
+                <div class="line">
+                    <span class="prompt">root@ghost:~$</span>
+                    <span>access_granted --user="KIM"</span>
+                </div>
+                <div class="line">
+                    <span class="prompt">></span>
+                    <span>Status: <span class="highlight">SEMESTER_COMPLETED</span></span>
+                </div>
+                <div class="line">
+                    <span class="prompt">></span>
+                    <span>Initiating reward protocol for top-tier performance...</span>
+                </div>
+                <br>
+                <div class="line">
+                    <span class="prompt">></span>
+                    <span>1. Report to <a href="#" class="location-link">Bonds Cigar Shop</a></span>
+                </div>
+                <div class="line">
+                    <span class="prompt">></span>
+                    <span>2. Acquire primary relaxation assets (Favorite Cigars).</span>
+                </div>
+                <div class="line">
+                    <span class="prompt">></span>
+                    <span>3. Rendezvous for <span class="highlight">Mojitos & Cigars</span>.</span>
+                </div>
+                <br>
+                <div class="line">
+                    <span class="prompt">root@ghost:~$</span>
+                    <span>run celebration.exe<span class="blink">_</span></span>
+                </div>
+            </div>
 
-            <p>
-                Now that the code is compiled, final grades are locked, and the books are closed—it’s time to celebrate! ✨
-            </p>
-
-            <a href="sms:?body=Congrats%20on%20finishing%20the%20semester!%20%F0%9F%8E%89" class="cta-btn">
-                [ Send Congrats Text ]
-            </a>
+            <div class="footer">
+                <button class="btn" onclick="alert('PROTOCOL INITIATED: See you at Bonds!')">Accept Mission</button>
+            </div>
         </div>
     </div>
 
@@ -287,83 +255,65 @@
         const canvas = document.getElementById('matrix-canvas');
         const ctx = canvas.getContext('2d');
 
-        // Set canvas to full window size
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        // Mix of Katakana, Tech, and Cute Cyber symbols
-        const chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ01210101♡✨🌸⚡<>/{}[]';
+        const chars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const charArr = chars.split("");
+
         const fontSize = 16;
-        let columns = Math.floor(canvas.width / fontSize);
-        
-        let drops = [];
-        for (let i = 0; i < columns; i++) {
-            drops[i] = Math.random() * -100; // Randomize start offset
+        const columns = canvas.width / fontSize;
+        const drops = [];
+
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
         }
 
-        // Color palette for the rain
-        const colors = ['#ff71ce', '#b967ff', '#01cdfe', '#05ffa1', '#ff2a8d'];
-
-        function drawMatrix() {
-            // Semi-transparent black background creates trailing fade effect
-            ctx.fillStyle = 'rgba(13, 2, 17, 0.08)';
+        function draw() {
+            // Semi-transparent black to create trailing effect
+            ctx.fillStyle = "rgba(5, 5, 5, 0.1)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.font = fontSize + 'px "Fira Code", monospace';
-
-            // Recalculate columns on resize
-            const currentColumns = Math.floor(canvas.width / fontSize);
-            if (currentColumns !== drops.length) {
-                columns = currentColumns;
-                drops = Array(columns).fill(0).map(() => Math.random() * -100);
-            }
+            ctx.font = fontSize + "px monospace";
 
             for (let i = 0; i < drops.length; i++) {
-                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                const text = charArr[Math.floor(Math.random() * charArr.length)];
                 
-                // Leading character gets bright cyan/white highlight
-                if (Math.random() > 0.85) {
-                    ctx.fillStyle = '#ffffff';
-                    ctx.shadowColor = '#01cdfe';
+                // Color logic: Primary Pink, Secondary White
+                const colorRoll = Math.random();
+                if (colorRoll > 0.85) {
+                    ctx.fillStyle = "#ffffff"; // Bright White highlight
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = "#ffffff";
+                } else if (colorRoll > 0.4) {
+                    ctx.fillStyle = "#ff2d95"; // Neon Pink
                     ctx.shadowBlur = 8;
+                    ctx.shadowColor = "#ff2d95";
                 } else {
-                    // Pick random pastel/neon hue
-                    ctx.fillStyle = colors[i % colors.length];
+                    ctx.fillStyle = "#66123b"; // Dim Pink
                     ctx.shadowBlur = 0;
                 }
 
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-                // Reset drop to top after leaving screen with pseudo-random timing
                 if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
                     drops[i] = 0;
                 }
 
                 drops[i]++;
             }
+            ctx.shadowBlur = 0; // Reset blur for next frame performance
         }
 
-        setInterval(drawMatrix, 33); // ~30fps
+        setInterval(draw, 35);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Recalculate columns on resize
+            const newCols = canvas.width / fontSize;
+            while(drops.length < newCols) drops.push(1);
+        });
     </script>
 </body>
 </html>
-
-
-Sometimes things hide in plain sight !!
-
-Depending on the language you dont always need to comment things out. 
-
-if its after a script block 
-<!-- 
-====================================================
-  SYSTEM STATUS: OPTIMAL
-  MAIN OBJECTIVE: Love Kim endlessly.
-  DEVELOPER NOTE: You're doing amazing today, babe. 
-  Keep crushing that Python! ❤️
-====================================================
--->
-
